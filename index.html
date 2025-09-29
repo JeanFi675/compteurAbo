@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compteur d'abonnements</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: transparent;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+    }
+    .counter {
+      text-align: center;
+    }
+    .circle {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: conic-gradient(
+        #4caf50 calc(var(--percent) * 1%),
+        #ddd 0
+      );
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      font-weight: bold;
+      position: relative;
+      transition: background 1s ease;
+    }
+    .circle::after {
+      content: "";
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      background: white;
+      border-radius: 50%;
+    }
+    .circle span {
+      position: relative;
+      z-index: 2;
+    }
+    .label {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: #555;
+    }
+    .loading {
+      font-size: 1rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="counter">
+    <div class="circle" id="circle" style="--percent: 0;">
+      <span id="value">...</span>
+    </div>
+    <div class="label">sur 350</div>
+    <div class="loading" id="loading">Chargement...</div>
+  </div>
+
+  <script>
+    const MAX = 350;
+    const API_URL = "https://ton-instance-n8n.com/webhook/abonnements"; 
+    // ⬆️ Remplace cette URL par celle de ton webhook n8n qui renvoie ton JSON
+
+    async function loadCounter() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        // On suppose que data ressemble à : [ { "Total": "336", ... } ]
+        const total = parseInt(data[0].Total, 10);
+        const percent = (total / MAX) * 100;
+
+        const circle = document.getElementById('circle');
+        const value = document.getElementById('value');
+        const loading = document.getElementById('loading');
+
+        circle.style.setProperty('--percent', percent.toFixed(1));
+        value.textContent = total;
+        loading.style.display = 'none';
+      } catch (e) {
+        document.getElementById('loading').textContent = "Erreur de chargement ❌";
+        console.error("Erreur :", e);
+      }
+    }
+
+    loadCounter();
+    // 🔁 (optionnel) rafraîchir automatiquement toutes les 5 min :
+    // setInterval(loadCounter, 5 * 60 * 1000);
+  </script>
+</body>
+</html>
