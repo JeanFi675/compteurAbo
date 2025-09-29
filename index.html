@@ -31,7 +31,6 @@
       font-size: 2rem;
       font-weight: bold;
       position: relative;
-      transition: background 1s ease;
     }
     .circle::after {
       content: "";
@@ -50,51 +49,26 @@
       font-size: 1rem;
       color: #555;
     }
-    .loading {
-      font-size: 1rem;
-      color: #777;
-    }
   </style>
 </head>
 <body>
   <div class="counter">
-    <div class="circle" id="circle" style="--percent: 0;">
-      <span id="value">...</span>
+    <div class="circle" id="circle">
+      <span id="value"></span>
     </div>
     <div class="label">sur 350</div>
-    <div class="loading" id="loading">Chargement...</div>
   </div>
 
   <script>
-    const MAX = 350;
-    const API_URL = "https://ton-instance-n8n.com/webhook/abonnements"; 
-    // ⬆️ Remplace cette URL par celle de ton webhook n8n qui renvoie ton JSON
+    // Valeur reçue depuis n8n
+    const total = 336; // <--- tu peux remplacer ici dynamiquement
+    const max = 350;
+    const percent = (total / max) * 100;
 
-    async function loadCounter() {
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-
-        // On suppose que data ressemble à : [ { "Total": "336", ... } ]
-        const total = parseInt(data[0].Total, 10);
-        const percent = (total / MAX) * 100;
-
-        const circle = document.getElementById('circle');
-        const value = document.getElementById('value');
-        const loading = document.getElementById('loading');
-
-        circle.style.setProperty('--percent', percent.toFixed(1));
-        value.textContent = total;
-        loading.style.display = 'none';
-      } catch (e) {
-        document.getElementById('loading').textContent = "Erreur de chargement ❌";
-        console.error("Erreur :", e);
-      }
-    }
-
-    loadCounter();
-    // 🔁 (optionnel) rafraîchir automatiquement toutes les 5 min :
-    // setInterval(loadCounter, 5 * 60 * 1000);
+    const circle = document.getElementById('circle');
+    const value = document.getElementById('value');
+    circle.style.setProperty('--percent', percent.toFixed(1));
+    value.textContent = `${total}`;
   </script>
 </body>
 </html>
